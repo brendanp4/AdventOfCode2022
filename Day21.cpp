@@ -11,6 +11,7 @@ struct Monkey {
     char operation = '0';
     Monkey* left = nullptr;
     Monkey* right = nullptr;
+    bool bContainsHuman = false;
 };
 
 
@@ -32,7 +33,7 @@ int main()
             Monkey* temp = new Monkey;
             temp->name = input.substr(0, 4);
             if (isdigit(input[6])) {
-                temp->value = static_cast<long long>( std::stoi( input.substr(6, input.size()) ) );
+                temp->value = static_cast<long long>( std::stoll( input.substr(6, input.size()) ) );
             }
             else
             {
@@ -56,6 +57,86 @@ int main()
         Calculate(root);
         std::cout << "Value: " << root->value << std::endl;
     }
+
+    Monkey* temp = nullptr;
+    long long expected = 0;
+    if (!root->left->bContainsHuman) {
+        expected = root->left->value;
+        temp = root->right;
+    }
+    if (!root->right->bContainsHuman) {
+        expected = root->right->value;
+        temp = root->left;
+    }
+
+    std::cout << "\nDesired value: " << expected << std::endl;
+
+    int count = 0;
+    
+    while (temp != nullptr) {
+        count++;
+        if (count == 19) {
+            int hmm = 0;
+        }
+        if (temp->left->bContainsHuman) {
+            if (temp->left->name == "humn") {
+                int hmm = 0;
+            }
+            switch (temp->operation)
+            {
+            case '+':
+                temp->left->value = expected - temp->right->value;
+                break;
+            case '-':
+                temp->left->value = expected + temp->right->value;
+                break;
+            case '*':
+                temp->left->value = expected / temp->right->value;
+                break;
+            case '/':
+                temp->left->value = expected * temp->right->value;
+                break;
+            default:
+                std::cerr << "Error!\n";
+                break;
+            }
+            
+            temp = temp->left;
+            expected = temp->value;
+            if (temp->name == "humn") {
+                std::cout << "Value to pass equality test: " << temp->value << std::endl;
+                break;
+            }
+        }
+        else if (temp->right->bContainsHuman) {
+            switch (temp->operation)
+            {
+            case '+':
+                temp->right->value = expected - temp->left->value;
+                break;
+            case '-':
+                temp->right->value = temp->left->value - expected;
+                break;
+            case '*':
+                temp->right->value = expected / temp->left->value;
+                break;
+            case '/':
+                temp->right->value = temp->left->value / expected;
+                break;
+            default:
+                std::cerr << "Error!\n";
+                break;
+            }
+            
+            temp = temp->right;
+            expected = temp->value;
+            if (temp->name == "humn") {
+                std::cout << "Value to pass equality test: " << temp->value << std::endl;
+                break;
+            }
+        }
+    }
+
 
     iFile.close();
     return 0;
@@ -84,10 +165,9 @@ void ConnectMonkeys(Monkey* root, std::vector<Monkey*> monkeys)
 long long Calculate(Monkey* root)
 {
 
-
-
-
-
+    if (root->name == "humn") {
+        root->bContainsHuman = true;
+    }
     if (root->value != 0) {
         return root->value;
     }
@@ -95,11 +175,8 @@ long long Calculate(Monkey* root)
     {
         long long leftOp = Calculate(root->left);
         long long rightOp = Calculate(root->right);
-        if (leftOp < 0) {
-            int hmm = 0;
-        }
-        if (rightOp < 0) {
-            int hmm = 0;
+        if (root->left->bContainsHuman || root->right->bContainsHuman) {
+            root->bContainsHuman = true;
         }
         switch (root->operation)
         {
@@ -114,9 +191,6 @@ long long Calculate(Monkey* root)
             break;
         case '/':
             root->value = leftOp / rightOp;
-            break;
-        case '=':
-            //
             break;
         default:
             std::cerr << "Error!\n";
