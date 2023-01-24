@@ -33,19 +33,24 @@ int main()
        
     }
     
+    //Start and end position coordinates
     std::pair<int, int> start = { 0,1 };
     std::pair<int, int> end = { valley.size() - 1,valley[0].size() - 2 };
-   
+    
+    //Counter for total moves made in getting to destination
     int numMoves = 0;
+    //Queue to hold potential moves
     std::queue<std::pair<int, int>> moves;
     
+    //First move is the start position
     moves.push(start);
+
     bool bFinished = false;
     int routes = 0;
 
-    while (!bFinished && routes < 3) {
-        std::queue<std::pair<int, int>> tMoves;
-        std::map<std::pair<int, int>, int> uMoves;
+    while (!bFinished) {
+        std::queue<std::pair<int, int>> tMoves;     //Place all possible moves into a temporary queue
+        std::map<std::pair<int, int>, int> uMoves;  //Hash table to ensure no duplicate moves
         //Reset valley
         for (int row = 1; row < valley.size() - 1; row++)
         {
@@ -56,6 +61,7 @@ int main()
         }
         //Place blizzards in valley
         for (auto& b : blizzards) {
+            //Move blizzard
             switch (b.first)
             {
             case '<':
@@ -96,6 +102,7 @@ int main()
                 }
                 break;
             }
+            //Place blizzard
             valley[b.second.first][b.second.second] = '*';
         }
 
@@ -106,6 +113,7 @@ int main()
             std::pair<int, int> you = moves.front();
             moves.pop();
 
+            //Check if destination has been reached
             if (you == end) {
                 std::cout << "Moves to reach end: " << numMoves - 1 << std::endl;
                 bFinished = true;
@@ -169,9 +177,12 @@ int main()
             }
         }
         moves = tMoves;
-        if (bFinished) {
+        if (bFinished && routes < 3) {
+            bFinished = false;
             std::queue<std::pair<int, int>> empty;
             moves = empty;
+            std::swap(start, end);
+            moves.push(start);
         }
     }
 
